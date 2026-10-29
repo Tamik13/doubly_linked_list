@@ -1,0 +1,21 @@
+clear
+
+clang++ -std=c++20 -O1 -g3 \
+  -Wall -Wextra -Wpedantic \
+  -Wconversion -Wsign-conversion -Wshadow-all \
+  -Wcast-align -Wcast-qual \
+  -Wformat=2 -Wformat-signedness \
+  -Wfloat-equal -Wundef \
+  -Wswitch-enum -Wswitch-default -Wimplicit-fallthrough \
+  -Wmissing-declarations -Wnull-dereference \
+  -Werror=vla -Werror=return-type \
+  -Wno-dollar-in-identifier-extension \
+  -fsanitize=address,undefined,float-divide-by-zero \
+  -fsanitize-address-use-after-scope \
+  -fno-omit-frame-pointer \
+  ./DOUBLY_LINKED_LIST/src/debugging.cpp \
+  ./DOUBLY_LINKED_LIST/src/DLlist.cpp \
+  ./DOUBLY_LINKED_LIST/src/main.cpp \
+  -o /Users/tamerlannagaev/prodva/DOUBLY_LINKED_LIST/bin/dbg_list
+
+./DOUBLY_LINKED_LIST/bin/dbg_list
