@@ -28,10 +28,6 @@
 #define YELLOW_D "33"
 #define VIOLET_D "35"
 
-#define    HTML_RED "<span style=\"color: red;\">"
-#define  HTML_GREEN "<span style=\"color: green;\">"
-#define HTML_VIOLET "<span style=\"color: VIOLET;\">"
-
 #define COLOR_TEXT(STR, COLOR)  "\033[" COLOR "m" STR "\033[0m"
 
 enum error_code_e {
@@ -53,19 +49,37 @@ enum error_code_e {
     INCORRECT_PARAM      = 15,
     DONT_OPEN_LOG        = 16,
     LIST_UNDERFLOW       = 17,
+    LOOPING_LIST         = 18,
     INIT_VALUE           = -1,
     UNEXPECTED_ERROR     = -2,
 };
 
-#define LOG_ERROR(message, ...) _log("ERROR", __FILE__, __func__, __LINE__, message, HTML_RED    __VA_OPT__(,) __VA_ARGS__)
-#define    LOG_OK(message, ...) _log("OK",    __FILE__, __func__, __LINE__, message, HTML_GREEN  __VA_OPT__(,) __VA_ARGS__)
-#define       LOG(message, ...) _log("INFO",  __FILE__, __func__, __LINE__, message, HTML_VIOLET __VA_OPT__(,) __VA_ARGS__)
+#define       BGCOLOR_HX "#1d2021"
+#define        BORDER_HX "#cbd5e1"
+#define           RED_HX "#ea6962"
+#define         GREEN_HX "#a9b665"
+#define      LAVENDER_HX "#d3869b"
+#define     DARK_WINE_HX "#352932"
+#define          AQUA_HX "#7daea3"
+#define     DARK_TEAL_HX "#243332"
+#define    MUTED_GRAY_HX "#504945"
+#define      GRAPHITE_HX "#282828"
+#define     WARM_GRAY_HX "#7c6f64"
+#define  HONEY_YELLOW_HX "#d8a657"
+#define PASTEL_PURPLE_HX "#d3869b"
+#define   OLIVE_GREEN_HX "#a9b665"
+#define     MAIN_TEXT_HX "#ebdbb2"
+
+#define LOG_ERROR(message, ...) _log("ERROR", __FILE__, __func__, __LINE__, message, RED_HX      __VA_OPT__(,) __VA_ARGS__)
+#define    LOG_OK(message, ...) _log("OK",    __FILE__, __func__, __LINE__, message, GREEN_HX    __VA_OPT__(,) __VA_ARGS__)
+#define       LOG(message, ...) _log("INFO",  __FILE__, __func__, __LINE__, message, LAVENDER_HX __VA_OPT__(,) __VA_ARGS__)
 
 extern FILE* GLOBAL_LOG_FILE;
 error_code_e log_start();
 void _log(const char*  prefix, const char* file,    const char* function,
                 size_t line,   const char* message, const char* color    ...);
 error_code_e log_end  ();
+
 
 unsigned long djb2_hash    (const unsigned char* str, const size_t size);
 unsigned long djb2_str_hash(const unsigned char* str);

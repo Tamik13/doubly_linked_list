@@ -203,12 +203,17 @@ error_code_e list_verify(const list_s* const list) {
         return CANARY_IS_DEAD;
     }
 
-    ssize_t ind    = list->next[0];
-    size_t counter = 0;
+    char*   visited = (char*)calloc(list->capacity, sizeof(char));
+    ssize_t ind     = 0;
 
-    while (list->prev[list->next[ind]] > 0 && counter < list->capacity && list->data[list->next[ind]] != POISON) {
-        counter++;
-        ind = list->next[ind];
+    while (list->next[ind]) {
+        if (visited[ind]) {
+            LOG_ERROR("INFINITY LOOP IN LIST");
+            return LOOPING_LIST;
+        }
+
+        visited[ind] = true;
+        ind          = list->next[ind];
     }
 
     return SUCCESS;
@@ -280,24 +285,24 @@ void list_dmp(const list_s* const list) {
 
     ssize_t count_read = 0;
     while ((count_read = read(dot_file, buffer, blksize)) > 0) {
-        size_t new_ind = 0;
+        ssize_t new_ind = 0;
 
-        for (size_t true_ind = 0; true_ind < count_read; true_ind++) {
+        for (ssize_t true_ind = 0; true_ind < count_read; true_ind++) {
 
-            if (true_ind >= 4 && buffer[true_ind - 4] == '/' && buffer[true_ind - 3] == 's'  && buffer[true_ind - 2] == 'v'  && buffer[true_ind - 1] == 'g' && buffer[true_ind] == '>') {
-                count_read = ++true_ind;
-                break;
-
-            } else if (buffer[true_ind] != '\n') {
+            if (buffer[true_ind] != '\n') {
                 buffer[new_ind] = buffer[true_ind];
                 new_ind++;
             }
+            if (true_ind >= 4 && strncmp(&buffer[true_ind - 4], "/svg>", 5) == 0) {
+                break;
+
+            }
         }
 
-        fwrite(buffer, 1, count_read,  GLOBAL_LOG_FILE);
+        fwrite(buffer, 1, (size_t)new_ind,  GLOBAL_LOG_FILE);
     }
 
-    fwrite("\n", 1, 1,  GLOBAL_LOG_FILE);
+    fprintf(GLOBAL_LOG_FILE, "\n");
 
     if (close(dot_file) == -1) {
         LOG_ERROR("CANT CLOSE dot_file");
@@ -323,9 +328,6 @@ void list_img(const list_s* const list) {
         return;
     }
 
-    static size_t img_num = 0;
-    img_num++;
-
     FILE* dot_file = fopen("/Users/tamerlannagaev/prodva/DOUBLY_LINKED_LIST/logs/dot/graph.dot", "w");
 
     if (dot_file == NULL) {
@@ -335,24 +337,34 @@ void list_img(const list_s* const list) {
 
     fprintf(dot_file,   "digraph {\n"
                             "\trankdir=LR;\n"
+                            "\tbgcolor=\"" BGCOLOR_HX "\";"
                             );
 
-    fprintf(dot_file, "\tnode0[shape=Mrecord; style = filled; fillcolor = \"#C0FFC0\"; label=\" index = 0 (Imaginary) | data = " LST_MDF " | { next = %zd | prev = %zd }\"]\n", list->data[0], list->next[0], list->prev[0]);
+    fprintf(dot_file, "\tnode0[shape=Mrecord; style=filled; fillcolor=\"" DARK_WINE_HX "\"; color=\"" LAVENDER_HX "\"; fontcolor=\"" WARM_GRAY_HX "\" label=\" index = 0 (Imaginary) | data = " LST_MDF " | { next = %zd | prev = %zd }\"];\n", list->data[0], list->next[0], list->prev[0]);
 
     for (size_t ind = 0; ind < list->capacity - 1; ind++) {
-        fprintf(dot_file, "\tnode%zu [shape=Mrecord; style = filled; fillcolor = \"#C0FFC0\"; label=\" index = %zu | data = " LST_MDF " | { next = %zd | prev = %zd }\"]\n"
-                          "\tnode%zu [shape=Mrecord; style = filled; fillcolor = \"#C0FFC0\"; label=\" index = %zu | data = " LST_MDF " | { next = %zd | prev = %zd }\"]\n"
-                          "\tnode%zu -> node%zu[color=white; weight=1000]\n",
-                          ind,     ind,     list->data[ind],     list->next[ind],     list->prev[ind],
-                          ind + 1, ind + 1, list->data[ind + 1], list->next[ind + 1], list->prev[ind + 1],
+        const char* fillcolor  = NULL;
+        const char* color      = NULL;
+
+        if (list->prev[ind + 1] == -1) {
+            fillcolor = GRAPHITE_HX;
+            color     = MUTED_GRAY_HX;
+        } else {
+            fillcolor = DARK_TEAL_HX;
+            color     = AQUA_HX;
+        }
+
+        fprintf(dot_file, "\tnode%zu [shape=Mrecord; style=filled; fillcolor=\"%s\"; color=\"%s\"; fontcolor=\"%s\"  label=\" index = %zu | data = " LST_MDF " | { next = %zd | prev = %zd }\"];\n"
+                          "\tnode%zu -> node%zu[style=invis; weight=1000];\n",
+                          ind + 1, fillcolor, color, MAIN_TEXT_HX, ind + 1, list->data[ind + 1], list->next[ind + 1], list->prev[ind + 1],
                           ind, ind + 1);
     }
 
     char*   visited = (char*)calloc(list->capacity, sizeof(char));
     ssize_t ind     = 0;
 
-    while (ind < list->capacity && !visited[ind]) {
-        fprintf(dot_file, "\tnode%zd -> node%zd[color=\"black\"]\n", ind, list->next[ind]);
+    while ((size_t)ind < list->capacity && !visited[ind]) {
+        fprintf(dot_file, "\tnode%zd -> node%zd[color=\"" AQUA_HX "\"];\n", ind, list->next[ind]);
 
         visited[ind] = true;
         ind          = list->next[ind];
@@ -374,4 +386,10 @@ void list_img(const list_s* const list) {
 
     LOG_OK("list img gen successfully");
     return;
+}
+
+
+bool is_equal(double first, double second) {
+    const double EPSILON = 1e-6;
+    return fabs(first - second) < EPSILON;
 }

@@ -20,7 +20,13 @@ error_code_e log_start() {
         return ERROR_DURING_OPEN;
     }
 
-    fprintf(GLOBAL_LOG_FILE, "<pre>\n");
+    fprintf(GLOBAL_LOG_FILE,"<style>"
+                                "body {"
+                                "background-color: " BGCOLOR_HX ";"
+                                "color: " MAIN_TEXT_HX ";"
+                            "}"
+                            "</style>"
+                            "<pre>\n");
 
     return SUCCESS;
 }
@@ -43,10 +49,11 @@ void _log(const char*  prefix, const char* file,    const char* function,
     char time_string[MAX_TIME_SIZE] = {};
     strftime(time_string, MAX_TIME_SIZE, "%H:%M:%S", tp);
 
-    fprintf (GLOBAL_LOG_FILE, "[%-30s] [%-4zu] [%-27s] [%s] [%5s] -> %s", file, line, function, time_string, prefix, color);
+    fprintf (GLOBAL_LOG_FILE, "[%-30s] [%-4zu] [%-27s] [%s] <span style=\"color: %s\"> [%5s] -> ", file, line, function, time_string, color, prefix);
     vfprintf(GLOBAL_LOG_FILE, message, ap);
     va_end  (ap);
     fprintf (GLOBAL_LOG_FILE, "</span>\n");
+    fflush(GLOBAL_LOG_FILE);
 }
 
 error_code_e log_end() {
@@ -139,6 +146,9 @@ const char* my_str_error(const error_code_e error_code) {
 
         case LIST_UNDERFLOW:
             return "LIST_UNDERFLOW: 17";
+
+        case LOOPING_LIST:
+            return "LOOPING_LIST: 18";
 
         case INIT_VALUE:
             return "INIT VALUE: -1";

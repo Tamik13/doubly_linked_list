@@ -5,6 +5,7 @@ int main() {
 
                list_s list = {};
     SAFE_CALL( list_assign(&list, 5))
+               list_del(&list);
 
     SAFE_CALL( list_add(&list, 1))
     SAFE_CALL( list_add(&list, 2))

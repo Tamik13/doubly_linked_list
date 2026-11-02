@@ -26,4 +26,6 @@ error_code_e list_verify (const list_s* const list);
 void list_dmp(const list_s* const list);
 void list_img(const list_s* const list);
 
+bool is_equal(double first, double second);
+
 #endif

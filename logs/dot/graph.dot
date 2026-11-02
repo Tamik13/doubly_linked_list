@@ -1,23 +1,18 @@
 digraph {
 	rankdir=LR;
-	node0[shape=Mrecord; style = filled; fillcolor = "#C0FFC0"; label=" index = 0 (Imaginary) | data = nan | { next = 3 | prev = 1 }"]
-	node0 [shape=Mrecord; style = filled; fillcolor = "#C0FFC0"; label=" index = 0 | data = nan | { next = 3 | prev = 1 }"]
-	node1 [shape=Mrecord; style = filled; fillcolor = "#C0FFC0"; label=" index = 1 | data = 1 | { next = 0 | prev = 2 }"]
-	node0 -> node1[color=white; weight=1000]
-	node1 [shape=Mrecord; style = filled; fillcolor = "#C0FFC0"; label=" index = 1 | data = 1 | { next = 0 | prev = 2 }"]
-	node2 [shape=Mrecord; style = filled; fillcolor = "#C0FFC0"; label=" index = 2 | data = 4 | { next = 1 | prev = 3 }"]
-	node1 -> node2[color=white; weight=1000]
-	node2 [shape=Mrecord; style = filled; fillcolor = "#C0FFC0"; label=" index = 2 | data = 4 | { next = 1 | prev = 3 }"]
-	node3 [shape=Mrecord; style = filled; fillcolor = "#C0FFC0"; label=" index = 3 | data = 3 | { next = 2 | prev = 0 }"]
-	node2 -> node3[color=white; weight=1000]
-	node3 [shape=Mrecord; style = filled; fillcolor = "#C0FFC0"; label=" index = 3 | data = 3 | { next = 2 | prev = 0 }"]
-	node4 [shape=Mrecord; style = filled; fillcolor = "#C0FFC0"; label=" index = 4 | data = nan | { next = 5 | prev = -1 }"]
-	node3 -> node4[color=white; weight=1000]
-	node4 [shape=Mrecord; style = filled; fillcolor = "#C0FFC0"; label=" index = 4 | data = nan | { next = 5 | prev = -1 }"]
-	node5 [shape=Mrecord; style = filled; fillcolor = "#C0FFC0"; label=" index = 5 | data = nan | { next = 6 | prev = -1 }"]
-	node4 -> node5[color=white; weight=1000]
-	node0 -> node3[color="black"]
-	node3 -> node2[color="black"]
-	node2 -> node1[color="black"]
-	node1 -> node0[color="black"]
+	bgcolor="#1d2021";	node0[shape=Mrecord; style=filled; fillcolor="#352932"; color="#d3869b"; fontcolor="#7c6f64" label=" index = 0 (Imaginary) | data = nan | { next = 3 | prev = 1 }"];
+	node1 [shape=Mrecord; style=filled; fillcolor="#243332"; color="#7daea3"; fontcolor="#ebdbb2"  label=" index = 1 | data = 1 | { next = 0 | prev = 2 }"];
+	node0 -> node1[style=invis; weight=1000];
+	node2 [shape=Mrecord; style=filled; fillcolor="#243332"; color="#7daea3"; fontcolor="#ebdbb2"  label=" index = 2 | data = 4 | { next = 1 | prev = 3 }"];
+	node1 -> node2[style=invis; weight=1000];
+	node3 [shape=Mrecord; style=filled; fillcolor="#243332"; color="#7daea3"; fontcolor="#ebdbb2"  label=" index = 3 | data = 3 | { next = 2 | prev = 0 }"];
+	node2 -> node3[style=invis; weight=1000];
+	node4 [shape=Mrecord; style=filled; fillcolor="#282828"; color="#504945"; fontcolor="#ebdbb2"  label=" index = 4 | data = nan | { next = 5 | prev = -1 }"];
+	node3 -> node4[style=invis; weight=1000];
+	node5 [shape=Mrecord; style=filled; fillcolor="#282828"; color="#504945"; fontcolor="#ebdbb2"  label=" index = 5 | data = nan | { next = 6 | prev = -1 }"];
+	node4 -> node5[style=invis; weight=1000];
+	node0 -> node3[color="#7daea3"];
+	node3 -> node2[color="#7daea3"];
+	node2 -> node1[color="#7daea3"];
+	node1 -> node0[color="#7daea3"];
 }
