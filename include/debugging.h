@@ -2,6 +2,7 @@
 #define _DEBUG_H
 
 #include <stdio.h>
+#include <errno.h>
 
 #define PRINT_ERROR(error)                                                                                      \
     fprintf(stderr, "%s:%d " COLOR_TEXT("ERROR CODE: ", RED_D) "%s   " COLOR_TEXT("ERRNO: ", RED_D) "%s  %s\n", \
@@ -26,6 +27,10 @@
 #define BLUE_D   "94"
 #define YELLOW_D "33"
 #define VIOLET_D "35"
+
+#define    HTML_RED "<span style=\"color: red;\">"
+#define  HTML_GREEN "<span style=\"color: green;\">"
+#define HTML_VIOLET "<span style=\"color: VIOLET;\">"
 
 #define COLOR_TEXT(STR, COLOR)  "\033[" COLOR "m" STR "\033[0m"
 
@@ -52,13 +57,14 @@ enum error_code_e {
     UNEXPECTED_ERROR     = -2,
 };
 
-#define LOG_ERROR(message, ...) _log("ERROR", __FILE__, __func__, __LINE__, message __VA_OPT__(,) __VA_ARGS__)
-#define    LOG_OK(message, ...) _log("OK",    __FILE__, __func__, __LINE__, message __VA_OPT__(,) __VA_ARGS__)
-#define       LOG(message, ...) _log("INFO",  __FILE__, __func__, __LINE__, message __VA_OPT__(,) __VA_ARGS__)
+#define LOG_ERROR(message, ...) _log("ERROR", __FILE__, __func__, __LINE__, message, HTML_RED    __VA_OPT__(,) __VA_ARGS__)
+#define    LOG_OK(message, ...) _log("OK",    __FILE__, __func__, __LINE__, message, HTML_GREEN  __VA_OPT__(,) __VA_ARGS__)
+#define       LOG(message, ...) _log("INFO",  __FILE__, __func__, __LINE__, message, HTML_VIOLET __VA_OPT__(,) __VA_ARGS__)
 
+extern FILE* GLOBAL_LOG_FILE;
 error_code_e log_start();
-void _log(const char* prefix, const char* file,   const char* function,
-                size_t   line,   const char* message, ...);
+void _log(const char*  prefix, const char* file,    const char* function,
+                size_t line,   const char* message, const char* color    ...);
 error_code_e log_end  ();
 
 unsigned long djb2_hash    (const unsigned char* str, const size_t size);
@@ -66,8 +72,9 @@ unsigned long djb2_str_hash(const unsigned char* str);
 
 const char* my_str_error(const error_code_e error_code);
 
-error_code_e is_readble_ptr(const void*        ptr);
-error_code_e stat_get_size (const char*  const file_name, size_t* const file_size);
+error_code_e is_readble_ptr  (const void*       ptr);
+error_code_e stat_get_size   (const char* const file_name, size_t* const file_size);
+error_code_e stat_get_blksize(const char* const file_name, size_t* const file_size);
 
 #define $(param) {$ANCHOR; fprintf(stderr, COLOR_TEXT(#param, VIOLET_D) " = "); _$(param);}
 void _$(const int           num);

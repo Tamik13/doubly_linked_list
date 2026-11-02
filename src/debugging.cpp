@@ -8,7 +8,7 @@
 
 #include "../include/debugging.h"
 
-const char* const LOG_FILE_NAME   = "./DOUBLY_LINKED_LIST/logs/log.txt";
+const char* const LOG_FILE_NAME   = "./DOUBLY_LINKED_LIST/logs/log.html";
 FILE*             GLOBAL_LOG_FILE = NULL;
 
 
@@ -20,11 +20,13 @@ error_code_e log_start() {
         return ERROR_DURING_OPEN;
     }
 
+    fprintf(GLOBAL_LOG_FILE, "<pre>\n");
+
     return SUCCESS;
 }
 
 void _log(const char*  prefix, const char* file,    const char* function,
-                size_t line,   const char* message, ...) {
+                size_t line,   const char* message, const char* color, ...) {
     assert(message != NULL);
     const size_t MAX_TIME_SIZE = 100;
 
@@ -33,7 +35,7 @@ void _log(const char*  prefix, const char* file,    const char* function,
     }
 
     va_list ap = {};
-    va_start(ap, message);
+    va_start(ap, color);
 
     time_t now    = time(NULL);
     struct tm *tp = localtime(&now);
@@ -41,10 +43,10 @@ void _log(const char*  prefix, const char* file,    const char* function,
     char time_string[MAX_TIME_SIZE] = {};
     strftime(time_string, MAX_TIME_SIZE, "%H:%M:%S", tp);
 
-    fprintf (GLOBAL_LOG_FILE, "[%-10s] [%-4zu] [%-27s] [%s] [%5s] ->  ", file, line, function, time_string, prefix);
+    fprintf (GLOBAL_LOG_FILE, "[%-30s] [%-4zu] [%-27s] [%s] [%5s] -> %s", file, line, function, time_string, prefix, color);
     vfprintf(GLOBAL_LOG_FILE, message, ap);
     va_end  (ap);
-    fprintf (GLOBAL_LOG_FILE, "\n");
+    fprintf (GLOBAL_LOG_FILE, "</span>\n");
 }
 
 error_code_e log_end() {
@@ -199,6 +201,20 @@ error_code_e stat_get_size(const char* const file_name, size_t* const file_size)
     }
 
     *file_size = (size_t)buff.st_size;
+
+    return SUCCESS;
+}
+
+
+error_code_e stat_get_blksize(const char* const file_name, size_t* const file_size) {
+    struct stat buff = {};
+
+    if (stat(file_name, &buff) == -1) {
+        LOG_ERROR("STAT OPEN ERROR");
+        return STAT_READ_ERROR;
+    }
+
+    *file_size = (size_t)buff.st_blksize;
 
     return SUCCESS;
 }

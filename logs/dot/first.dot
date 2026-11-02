@@ -1,0 +1,7 @@
+digraph {
+    rankdir=LR;
+    node [fontname="Helvetica", shape=Mrecord];
+
+    A
+    A->B
+}
