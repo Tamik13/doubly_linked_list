@@ -8,7 +8,7 @@
 
 const list_elem_t POISON = NAN;
 
-error_code_e list_assign(list_s* const list, size_t size) {
+error_code_e list_assign(list_s* const list, ssize_t size) {
     assert(list != NULL); // TODO: проверить не создан ли уже
 
     if (size < 1) {
@@ -22,31 +22,35 @@ error_code_e list_assign(list_s* const list, size_t size) {
     list->capacity = size;
     list->free_ind = 1;
 
-    list->data = (list_elem_t*)calloc(size, sizeof(list_elem_t));
+    list->data = (list_elem_t*)calloc((size_t)size, sizeof(list_elem_t));
     if (list->data == NULL) {
         LOG_ERROR("ERROR DURING CALLOC");
         return ALLOCATION_ERROR;
     }
 
-    list->next = (ssize_t*)calloc(size, sizeof(ssize_t));
+    list->next = (ssize_t*)calloc((size_t)size, sizeof(ssize_t));
     if (list->next == NULL) {
+        free(list->data);
         LOG_ERROR("ERROR DURING CALLOC");
         return ALLOCATION_ERROR;
     }
 
-    list->prev = (ssize_t*)calloc(size, sizeof(ssize_t));
+    list->prev = (ssize_t*)calloc((size_t)size, sizeof(ssize_t));
     if (list->prev == NULL) {
+        free(list->data);
+        free(list->next);
         LOG_ERROR("ERROR DURING CALLOC");
         return ALLOCATION_ERROR;
     }
 
-    list->data[0] = POISON;
-
-    for (size_t ind = 1; ind < size; ind++) {
+    for (ssize_t ind = 1; ind < size; ind++) {
         list->data[ind] = POISON;
         list->next[ind] = (ssize_t)ind + 1;
         list->prev[ind] = -1;
     }
+
+    list->data[0]        = POISON;
+    list->next[size - 1] = -1;
 
     LOG_OK("list created successfully");
     return SUCCESS;
@@ -54,6 +58,8 @@ error_code_e list_assign(list_s* const list, size_t size) {
 
 
 error_code_e list_destroy(list_s* const list) {
+    LOG("start list_destroy");
+
     assert(list       != NULL);
     assert(list->data != NULL);
     assert(list->next != NULL);
@@ -81,6 +87,8 @@ error_code_e list_destroy(list_s* const list) {
 
 
 error_code_e list_next(list_s* const list) {
+    LOG("start list_next");
+
     assert(list       != NULL);
     assert(list->data != NULL);
     assert(list->next != NULL);
@@ -96,6 +104,8 @@ error_code_e list_next(list_s* const list) {
 
 
 error_code_e list_get(const list_s* const list, list_elem_t* value) {
+    LOG("start list_get");
+
     assert(value      != NULL);
     assert(list       != NULL);
     assert(list->data != NULL);
@@ -112,6 +122,8 @@ error_code_e list_get(const list_s* const list, list_elem_t* value) {
 
 
 error_code_e list_add(list_s* const list, list_elem_t value) {
+    LOG("start list_add");
+
     assert(list       != NULL);
     assert(list->data != NULL);
     assert(list->next != NULL);
@@ -120,13 +132,13 @@ error_code_e list_add(list_s* const list, list_elem_t value) {
     SAFE_CALL(list_verify(list))
 
     ssize_t free_ind = list->free_ind;
-    list->free_ind   = list->next[free_ind];
 
     if (free_ind == -1) { // list recalloc
         LOG_ERROR("ERROR DURING FIND FREE IND");
         return LIST_OVERFLOW;
     }
 
+    list->free_ind                         = list->next[free_ind];
     list->prev[list->next[list->elem_ind]] = free_ind;
     list->data[free_ind]                   = value;
     list->next[free_ind]                   = list->next[list->elem_ind];
@@ -139,6 +151,8 @@ error_code_e list_add(list_s* const list, list_elem_t value) {
 
 
 error_code_e list_del(list_s* const list) {
+    LOG("start list_del");
+
     assert(list       != NULL);
     assert(list->data != NULL);
     assert(list->next != NULL);
@@ -164,6 +178,7 @@ error_code_e list_del(list_s* const list) {
     list->next[del_ind]             = list->free_ind;
     list->free_ind                  = del_ind;
     list->elem_ind                  = list->prev[del_ind];
+    list->prev[del_ind]             = -1;
 
     LOG_OK("list del successfully del_ind = %zd elem_ind = %zd", del_ind, list->elem_ind);
     return SUCCESS;
@@ -171,6 +186,57 @@ error_code_e list_del(list_s* const list) {
 
 
 error_code_e list_verify(const list_s* const list) {
+    list_dmp(list);
+
+    if (list == NULL) { // TODO битовые поля
+        LOG_ERROR("list = NULL");
+        return NULL_PARAM;
+    }
+    if (is_readble_ptr(list) != SUCCESS) {
+        LOG_ERROR("list ptr cant be read");
+        return SEG_FAULT;
+    }
+
+    if (!isnan(list->data[0])) { // При замене POISON поменять!!!
+        LOG_ERROR("list->data[0] != POISON");
+        return CANARY_IS_DEAD;
+    }
+
+    if (list->elem_ind < 0 || list->elem_ind >= list->capacity) {
+        LOG_ERROR("INCORRECT ELEM_IND: elem_ind = %zd", list->elem_ind);
+        return INCORRECT_SIZE;
+    }
+
+    char*   visited = (char*)calloc((size_t)list->capacity, sizeof(char));
+    ssize_t ind     = 0;
+
+    while (list->next[ind]) {
+        if (visited[ind]) {
+            LOG_ERROR("INFINITY LOOP IN LIST");
+            return LOOPING_LIST;
+        }
+
+        visited[ind] = true;
+        ind          = list->next[ind];
+
+        if (ind < 0 || ind >= list->capacity) {
+            LOG_ERROR("IND OUT OD RANGE ind = %zd", ind);
+            free(visited);
+            return INCORRECT_SIZE;
+        }
+    }
+
+    free(visited);
+
+    for (ind = 0; ind < list->capacity; ind++) {
+        SAFE_CALL(node_verify(list, ind))
+    }
+
+    return SUCCESS;
+}
+
+
+error_code_e node_verify(const list_s* const list, const ssize_t ind) {
     if (list == NULL) { // TODO битовые поля
         LOG_ERROR("list = NULL");
         return NULL_PARAM;
@@ -198,22 +264,66 @@ error_code_e list_verify(const list_s* const list) {
         return SEG_FAULT;
     }
 
-    if (!isnan(list->data[0])) { // При замене POISON поменять!!!
-        LOG_ERROR("list->data[0] != POISON");
-        return CANARY_IS_DEAD;
+    if (list->prev[ind] != -1) {
+        SAFE_CALL(edge_verify(list, ind, list->next[ind]))
+        SAFE_CALL(edge_verify(list, list->prev[ind], ind))
     }
 
-    char*   visited = (char*)calloc(list->capacity, sizeof(char));
-    ssize_t ind     = 0;
+    return SUCCESS;
+}
 
-    while (list->next[ind]) {
-        if (visited[ind]) {
-            LOG_ERROR("INFINITY LOOP IN LIST");
-            return LOOPING_LIST;
-        }
 
-        visited[ind] = true;
-        ind          = list->next[ind];
+error_code_e edge_verify(const list_s* const list, const ssize_t first_ind, const ssize_t second_ind) {
+    if (list == NULL) { // TODO битовые поля
+        LOG_ERROR("list = NULL");
+        return NULL_PARAM;
+    }
+    if (is_readble_ptr(list) != SUCCESS) {
+        LOG_ERROR("list ptr cant be read");
+        return SEG_FAULT;
+    }
+
+    if (list->data == NULL) {
+        LOG_ERROR("list->data = NULL");
+        return NULL_PARAM;
+    }
+    if (is_readble_ptr(list->data) != SUCCESS) {
+        LOG_ERROR("list->data ptr cant be read");
+        return SEG_FAULT;
+    }
+
+    if (list->next == NULL) {
+        LOG_ERROR("list = NULL");
+        return NULL_PARAM;
+    }
+    if (is_readble_ptr(list->next) != SUCCESS) {
+        LOG_ERROR("list ptr cant be read");
+        return SEG_FAULT;
+    }
+
+    if (first_ind < 0 || first_ind >= list->capacity) {
+        LOG_ERROR("INCORRECT SIZE FIRST IND = %zd", first_ind);
+        return INCORRECT_SIZE;
+    }
+
+    if (second_ind < 0 || second_ind >= list->capacity) {
+        LOG_ERROR("INCORRECT SIZE SECOND IND = %zd", second_ind);
+        return INCORRECT_SIZE;
+    }
+
+    if (list->prev[first_ind] * list->prev[second_ind] < 0) {
+        LOG_ERROR("The free and occupied elements are connected");
+        return INCORRECT_PARAM;
+    }
+
+    if (list->prev[first_ind] != -1 && list->next[first_ind] != second_ind) {
+        LOG_ERROR("list->next[first_ind] = %zd != second_ind = %zd", list->prev[first_ind], second_ind);
+        return INCORRECT_PARAM;
+    }
+
+    if (list->prev[first_ind] != -1 && list->prev[second_ind] != first_ind) {
+        LOG_ERROR("list->prev[second_ind] = %zd != first_ind = %zd", list->prev[second_ind], first_ind);
+        return INCORRECT_PARAM;
     }
 
     return SUCCESS;
@@ -236,7 +346,7 @@ void list_dmp(const list_s* const list) {
     LOG("\tdata %p {", list->data);
 
     if (is_data_ok) {
-        for (size_t ind = 0; ind < list->capacity; ind++) {
+        for (ssize_t ind = 0; ind < list->capacity; ind++) {
             LOG("\t\t[%zu] = " LST_MDF, ind, list->data[ind]);
         }
     } else {
@@ -247,7 +357,7 @@ void list_dmp(const list_s* const list) {
     LOG("\tnext %p {", list->next);
 
     if (is_next_ok) {
-        for (size_t ind = 0; ind < list->capacity; ind++) {
+        for (ssize_t ind = 0; ind < list->capacity; ind++) {
             LOG("\t\t[%zu] = %zd", ind, list->next[ind]);
         }
     } else {
@@ -258,7 +368,7 @@ void list_dmp(const list_s* const list) {
     LOG("\tprev %p {", list->prev);
 
     if (is_prev_ok) {
-        for (size_t ind = 0; ind < list->capacity; ind++) {
+        for (ssize_t ind = 0; ind < list->capacity; ind++) {
             LOG("\t\t[%zu] = %zd", ind, list->prev[ind]);
         }
     } else {
@@ -281,7 +391,7 @@ void list_dmp(const list_s* const list) {
 
     char* buffer = (char*)calloc(blksize, sizeof(char));
 
-    int dot_file = open("/Users/tamerlannagaev/prodva/DOUBLY_LINKED_LIST/logs/dot/graph.svg", O_RDONLY); // TODO: относительный путь
+    int dot_file = open("./DOUBLY_LINKED_LIST/logs/dot/graph.svg", O_RDONLY);
 
     ssize_t count_read = 0;
     while ((count_read = read(dot_file, buffer, blksize)) > 0) {
@@ -328,7 +438,7 @@ void list_img(const list_s* const list) {
         return;
     }
 
-    FILE* dot_file = fopen("/Users/tamerlannagaev/prodva/DOUBLY_LINKED_LIST/logs/dot/graph.dot", "w");
+    FILE* dot_file = fopen("./DOUBLY_LINKED_LIST/logs/dot/graph.dot", "w");
 
     if (dot_file == NULL) {
         LOG_ERROR("error during open dot file");
@@ -338,15 +448,25 @@ void list_img(const list_s* const list) {
     fprintf(dot_file,   "digraph {\n"
                             "\trankdir=LR;\n"
                             "\tbgcolor=\"" BGCOLOR_HX "\";"
+                            // "\tsplines=ortho\n"
+                            "\tnodesep=0.6\n"
+                            "\trank_sep=1.0\n"
                             );
 
-    fprintf(dot_file, "\tnode0[shape=Mrecord; style=filled; fillcolor=\"" DARK_WINE_HX "\"; color=\"" LAVENDER_HX "\"; fontcolor=\"" WARM_GRAY_HX "\" label=\" index = 0 (Imaginary) | data = " LST_MDF " | { next = %zd | prev = %zd }\"];\n", list->data[0], list->next[0], list->prev[0]);
+    fprintf(dot_file, "\tnode0[shape=Mrecord; style=filled; fillcolor=\"" DARK_WINE_HX     "\"; color=\"" LAVENDER_HX      "\";fontcolor=\"" WARM_GRAY_HX "\" label=\" index = 0 (Imaginary) | data = " LST_MDF " | { next = %zd | prev = %zd }\"];\n", list->data[0], list->next[0], list->prev[0]);
+    fprintf(dot_file, "\thead[shape=Mrecord;  style=filled; fillcolor=\"" HONEY_YELLOW_HX  "\"; color=\"" HONEY_YELLOW_HX  "\";fontcolor=\"" MAIN_TEXT_HX "\" label=\"head\"]\n");
+    fprintf(dot_file, "\ttail[shape=Mrecord;  style=filled; fillcolor=\"" PASTEL_PURPLE_HX "\"; color=\"" PASTEL_PURPLE_HX "\";fontcolor=\"" MAIN_TEXT_HX "\" label=\"tail\"]\n");
+    fprintf(dot_file, "\telem_ind[shape=Mrecord;  style=filled; fillcolor=\"" AQUA_HX      "\"; color=\"" AQUA_HX          "\";fontcolor=\"" MAIN_TEXT_HX "\" label=\"elem_ind\"]\n");
 
-    for (size_t ind = 0; ind < list->capacity - 1; ind++) {
+
+    for (ssize_t ind = 0; ind < list->capacity - 1; ind++) {
         const char* fillcolor  = NULL;
         const char* color      = NULL;
 
-        if (list->prev[ind + 1] == -1) {
+        if (node_verify(list, ind + 1) != SUCCESS) {
+            fillcolor = DARK_RED_HX;
+            color     = RED_HX;
+        } else if (list->prev[ind + 1] == -1) {
             fillcolor = GRAPHITE_HX;
             color     = MUTED_GRAY_HX;
         } else {
@@ -354,20 +474,26 @@ void list_img(const list_s* const list) {
             color     = AQUA_HX;
         }
 
-        fprintf(dot_file, "\tnode%zu [shape=Mrecord; style=filled; fillcolor=\"%s\"; color=\"%s\"; fontcolor=\"%s\"  label=\" index = %zu | data = " LST_MDF " | { next = %zd | prev = %zd }\"];\n"
-                          "\tnode%zu -> node%zu[style=invis; weight=1000];\n",
+        fprintf(dot_file, "\tnode%zd [shape=Mrecord; style=filled; fillcolor=\"%s\"; color=\"%s\"; fontcolor=\"%s\"  label=\" index = %zd | data = " LST_MDF " | { next = %zd | prev = %zd }\"];\n"
+                          "\tnode%zd -> node%zd[style=invis; weight=1000];\n",
                           ind + 1, fillcolor, color, MAIN_TEXT_HX, ind + 1, list->data[ind + 1], list->next[ind + 1], list->prev[ind + 1],
                           ind, ind + 1);
     }
 
-    char*   visited = (char*)calloc(list->capacity, sizeof(char));
-    ssize_t ind     = 0;
+    fprintf(dot_file,     "\thead -> node%zd[color=\"" AQUA_HX "\"];\n", list->next[0]);
+    fprintf(dot_file,     "\ttail -> node%zd[color=\"" AQUA_HX "\"];\n", list->prev[0]);
+    fprintf(dot_file, "\telem_ind -> node%zd[color=\"" AQUA_HX "\"];\n", list->elem_ind);
 
-    while ((size_t)ind < list->capacity && !visited[ind]) {
-        fprintf(dot_file, "\tnode%zd -> node%zd[color=\"" AQUA_HX "\"];\n", ind, list->next[ind]);
-
-        visited[ind] = true;
-        ind          = list->next[ind];
+    for (ssize_t ind = 0; ind < list->capacity; ind++) {
+        if (list->next[ind] == -1) {
+            continue;
+        } else if (list->prev[ind] == -1) {
+            fprintf(dot_file, "\tnode%zd -> node%zd[color=\"" MUTED_GRAY_HX "\"];\n", ind, list->next[ind]);
+        } else if (edge_verify(list, ind, list->next[ind]) != SUCCESS) {
+            fprintf(dot_file, "\tnode%zd -> node%zd[color=\"" RED_HX        "\"];\n", ind, list->next[ind]);
+        } else {
+            fprintf(dot_file, "\tnode%zd -> node%zd[color=\"" AQUA_HX       "\"];\n", ind, list->next[ind]);
+        }
     }
 
     fprintf(dot_file, "}");

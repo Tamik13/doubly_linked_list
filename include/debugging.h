@@ -57,6 +57,7 @@ enum error_code_e {
 #define       BGCOLOR_HX "#1d2021"
 #define        BORDER_HX "#cbd5e1"
 #define           RED_HX "#ea6962"
+#define      DARK_RED_HX "#750e15"
 #define         GREEN_HX "#a9b665"
 #define      LAVENDER_HX "#d3869b"
 #define     DARK_WINE_HX "#352932"

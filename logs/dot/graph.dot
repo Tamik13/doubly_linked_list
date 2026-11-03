@@ -1,18 +1,72 @@
 digraph {
 	rankdir=LR;
-	bgcolor="#1d2021";	node0[shape=Mrecord; style=filled; fillcolor="#352932"; color="#d3869b"; fontcolor="#7c6f64" label=" index = 0 (Imaginary) | data = nan | { next = 3 | prev = 1 }"];
-	node1 [shape=Mrecord; style=filled; fillcolor="#243332"; color="#7daea3"; fontcolor="#ebdbb2"  label=" index = 1 | data = 1 | { next = 0 | prev = 2 }"];
+	bgcolor="#1d2021";	nodesep=0.6
+	rank_sep=1.0
+	node0[shape=Mrecord; style=filled; fillcolor="#352932"; color="#d3869b";fontcolor="#7c6f64" label=" index = 0 (Imaginary) | data = nan | { next = 3 | prev = 1 }"];
+	head[shape=Mrecord;  style=filled; fillcolor="#d8a657"; color="#d8a657";fontcolor="#ebdbb2" label="head"]
+	tail[shape=Mrecord;  style=filled; fillcolor="#d3869b"; color="#d3869b";fontcolor="#ebdbb2" label="tail"]
+	elem_ind[shape=Mrecord;  style=filled; fillcolor="#7daea3"; color="#7daea3";fontcolor="#ebdbb2" label="elem_ind"]
+	node1 [shape=Mrecord; style=filled; fillcolor="#243332"; color="#7daea3"; fontcolor="#ebdbb2"  label=" index = 1 | data = 1 | { next = 0 | prev = 3 }"];
 	node0 -> node1[style=invis; weight=1000];
-	node2 [shape=Mrecord; style=filled; fillcolor="#243332"; color="#7daea3"; fontcolor="#ebdbb2"  label=" index = 2 | data = 4 | { next = 1 | prev = 3 }"];
+	node2 [shape=Mrecord; style=filled; fillcolor="#282828"; color="#504945"; fontcolor="#ebdbb2"  label=" index = 2 | data = nan | { next = 4 | prev = -1 }"];
 	node1 -> node2[style=invis; weight=1000];
-	node3 [shape=Mrecord; style=filled; fillcolor="#243332"; color="#7daea3"; fontcolor="#ebdbb2"  label=" index = 3 | data = 3 | { next = 2 | prev = 0 }"];
+	node3 [shape=Mrecord; style=filled; fillcolor="#243332"; color="#7daea3"; fontcolor="#ebdbb2"  label=" index = 3 | data = 3 | { next = 1 | prev = 0 }"];
 	node2 -> node3[style=invis; weight=1000];
 	node4 [shape=Mrecord; style=filled; fillcolor="#282828"; color="#504945"; fontcolor="#ebdbb2"  label=" index = 4 | data = nan | { next = 5 | prev = -1 }"];
 	node3 -> node4[style=invis; weight=1000];
 	node5 [shape=Mrecord; style=filled; fillcolor="#282828"; color="#504945"; fontcolor="#ebdbb2"  label=" index = 5 | data = nan | { next = 6 | prev = -1 }"];
 	node4 -> node5[style=invis; weight=1000];
+	node6 [shape=Mrecord; style=filled; fillcolor="#282828"; color="#504945"; fontcolor="#ebdbb2"  label=" index = 6 | data = nan | { next = 7 | prev = -1 }"];
+	node5 -> node6[style=invis; weight=1000];
+	node7 [shape=Mrecord; style=filled; fillcolor="#282828"; color="#504945"; fontcolor="#ebdbb2"  label=" index = 7 | data = nan | { next = 8 | prev = -1 }"];
+	node6 -> node7[style=invis; weight=1000];
+	node8 [shape=Mrecord; style=filled; fillcolor="#282828"; color="#504945"; fontcolor="#ebdbb2"  label=" index = 8 | data = nan | { next = 9 | prev = -1 }"];
+	node7 -> node8[style=invis; weight=1000];
+	node9 [shape=Mrecord; style=filled; fillcolor="#282828"; color="#504945"; fontcolor="#ebdbb2"  label=" index = 9 | data = nan | { next = 10 | prev = -1 }"];
+	node8 -> node9[style=invis; weight=1000];
+	node10 [shape=Mrecord; style=filled; fillcolor="#282828"; color="#504945"; fontcolor="#ebdbb2"  label=" index = 10 | data = nan | { next = 11 | prev = -1 }"];
+	node9 -> node10[style=invis; weight=1000];
+	node11 [shape=Mrecord; style=filled; fillcolor="#282828"; color="#504945"; fontcolor="#ebdbb2"  label=" index = 11 | data = nan | { next = 12 | prev = -1 }"];
+	node10 -> node11[style=invis; weight=1000];
+	node12 [shape=Mrecord; style=filled; fillcolor="#282828"; color="#504945"; fontcolor="#ebdbb2"  label=" index = 12 | data = nan | { next = 13 | prev = -1 }"];
+	node11 -> node12[style=invis; weight=1000];
+	node13 [shape=Mrecord; style=filled; fillcolor="#282828"; color="#504945"; fontcolor="#ebdbb2"  label=" index = 13 | data = nan | { next = 14 | prev = -1 }"];
+	node12 -> node13[style=invis; weight=1000];
+	node14 [shape=Mrecord; style=filled; fillcolor="#282828"; color="#504945"; fontcolor="#ebdbb2"  label=" index = 14 | data = nan | { next = 15 | prev = -1 }"];
+	node13 -> node14[style=invis; weight=1000];
+	node15 [shape=Mrecord; style=filled; fillcolor="#282828"; color="#504945"; fontcolor="#ebdbb2"  label=" index = 15 | data = nan | { next = 16 | prev = -1 }"];
+	node14 -> node15[style=invis; weight=1000];
+	node16 [shape=Mrecord; style=filled; fillcolor="#282828"; color="#504945"; fontcolor="#ebdbb2"  label=" index = 16 | data = nan | { next = 17 | prev = -1 }"];
+	node15 -> node16[style=invis; weight=1000];
+	node17 [shape=Mrecord; style=filled; fillcolor="#282828"; color="#504945"; fontcolor="#ebdbb2"  label=" index = 17 | data = nan | { next = 18 | prev = -1 }"];
+	node16 -> node17[style=invis; weight=1000];
+	node18 [shape=Mrecord; style=filled; fillcolor="#282828"; color="#504945"; fontcolor="#ebdbb2"  label=" index = 18 | data = nan | { next = 19 | prev = -1 }"];
+	node17 -> node18[style=invis; weight=1000];
+	node19 [shape=Mrecord; style=filled; fillcolor="#282828"; color="#504945"; fontcolor="#ebdbb2"  label=" index = 19 | data = nan | { next = 20 | prev = -1 }"];
+	node18 -> node19[style=invis; weight=1000];
+	node20 [shape=Mrecord; style=filled; fillcolor="#282828"; color="#504945"; fontcolor="#ebdbb2"  label=" index = 20 | data = nan | { next = -1 | prev = -1 }"];
+	node19 -> node20[style=invis; weight=1000];
+	head -> node3[color="#7daea3"];
+	tail -> node1[color="#7daea3"];
+	elem_ind -> node3[color="#7daea3"];
 	node0 -> node3[color="#7daea3"];
-	node3 -> node2[color="#7daea3"];
-	node2 -> node1[color="#7daea3"];
 	node1 -> node0[color="#7daea3"];
+	node2 -> node4[color="#504945"];
+	node3 -> node1[color="#7daea3"];
+	node4 -> node5[color="#504945"];
+	node5 -> node6[color="#504945"];
+	node6 -> node7[color="#504945"];
+	node7 -> node8[color="#504945"];
+	node8 -> node9[color="#504945"];
+	node9 -> node10[color="#504945"];
+	node10 -> node11[color="#504945"];
+	node11 -> node12[color="#504945"];
+	node12 -> node13[color="#504945"];
+	node13 -> node14[color="#504945"];
+	node14 -> node15[color="#504945"];
+	node15 -> node16[color="#504945"];
+	node16 -> node17[color="#504945"];
+	node17 -> node18[color="#504945"];
+	node18 -> node19[color="#504945"];
+	node19 -> node20[color="#504945"];
 }
