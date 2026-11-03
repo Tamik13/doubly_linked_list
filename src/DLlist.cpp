@@ -57,6 +57,63 @@ error_code_e list_assign(list_s* const list, ssize_t size) {
 }
 
 
+error_code_e list_recalloc(list_s* const list) {
+    LOG("start list_destroy");
+
+    assert(list       != NULL);
+    assert(list->data != NULL);
+    assert(list->next != NULL);
+    assert(list->prev != NULL);
+
+    SAFE_CALL(list_verify(list))
+
+    const ssize_t HIGHER_COEF = 2;
+    ssize_t new_capacity = list->capacity * HIGHER_COEF;
+
+    list_elem_t* new_data = (list_elem_t*)realloc(list->data, (size_t)new_capacity * sizeof(list_elem_t));
+    if (new_data == NULL) {
+        LOG_ERROR("ERROR DURING RECALLOC new_data");
+        return ALLOCATION_ERROR;
+    }
+
+    for (ssize_t ind = list->capacity; ind < new_capacity; ind++) {
+        new_data[ind] = POISON;
+    }
+
+    ssize_t* new_next = (ssize_t*)realloc(list->next, (size_t)new_capacity * sizeof(ssize_t));
+    if (new_next == NULL) {
+        free(new_data);
+        LOG_ERROR("ERROR DURING RECALLOC new_next");
+        return ALLOCATION_ERROR;
+    }
+
+    for (ssize_t ind = list->capacity; ind < new_capacity; ind++) {
+        new_next[ind]  = list->free_ind;
+        list->free_ind = ind;
+    }
+    ssize_t* new_prev = (ssize_t*)realloc(list->prev, (size_t)new_capacity * sizeof(ssize_t));
+    if (new_prev == NULL) {
+        free(new_data);
+        free(new_next);
+        LOG_ERROR("ERROR DURING RECALLOC new_prev");
+        return ALLOCATION_ERROR;
+    }
+
+    for (ssize_t ind = list->capacity; ind < new_capacity; ind++) {
+        new_prev[ind] = -1;
+    }
+
+    list->data     = new_data;
+    list->next     = new_next;
+    list->prev     = new_prev;
+    list->capacity = new_capacity;
+
+    SAFE_CALL(list_verify(list))
+
+    return SUCCESS;
+}
+
+
 error_code_e list_destroy(list_s* const list) {
     LOG("start list_destroy");
 
@@ -133,9 +190,10 @@ error_code_e list_add(list_s* const list, list_elem_t value) {
 
     ssize_t free_ind = list->free_ind;
 
-    if (free_ind == -1) { // list recalloc
-        LOG_ERROR("ERROR DURING FIND FREE IND");
-        return LIST_OVERFLOW;
+    if (free_ind == -1) {
+        SAFE_CALL(list_recalloc(list));
+        free_ind = list->free_ind;
+        assert(free_ind != -1);
     }
 
     list->free_ind                         = list->next[free_ind];

@@ -15,15 +15,16 @@ struct list_s {
     ssize_t      free_ind;
 };
 
-error_code_e list_assign (      list_s* const list, ssize_t size);
-error_code_e list_destroy(      list_s* const list);
-error_code_e list_next   (      list_s* const list);
-error_code_e list_get    (const list_s* const list, list_elem_t* value);
-error_code_e list_add    (      list_s* const list, list_elem_t  value);
-error_code_e list_del    (      list_s* const list);
-error_code_e list_verify (const list_s* const list);
-error_code_e node_verify (const list_s* const list, const ssize_t ind);
-error_code_e edge_verify (const list_s* const list, const ssize_t first_ind, const ssize_t second_ind);
+error_code_e list_assign  (      list_s* const list, ssize_t size);
+error_code_e list_recalloc(      list_s* const list);
+error_code_e list_destroy (      list_s* const list);
+error_code_e list_next    (      list_s* const list);
+error_code_e list_get     (const list_s* const list, list_elem_t* value);
+error_code_e list_add     (      list_s* const list, list_elem_t  value);
+error_code_e list_del     (      list_s* const list);
+error_code_e list_verify  (const list_s* const list);
+error_code_e node_verify  (const list_s* const list, const ssize_t ind);
+error_code_e edge_verify  (const list_s* const list, const ssize_t first_ind, const ssize_t second_ind);
 
 void list_dmp(const list_s* const list);
 void list_img(const list_s* const list);
